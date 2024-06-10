@@ -24,7 +24,7 @@ class JournalController extends Controller
             'entry_id' => 'required|exists:entries,id',
             'mood' => 'nullable|in:happy,sad,angry,anxious,proud',
             'content' => 'required|string',
-            'image' => 'nullable|image|min:2048',
+            'image' => 'nullable|image|max:1024',
         ]);
     
         // Check if an Entry already has a Journal
@@ -66,7 +66,7 @@ class JournalController extends Controller
         $request->validate([
             'mood' => 'nullable|in:happy,sad,angry,anxious,proud',
             'content' => 'required|string',
-            'image' => 'nullable|image|min:1024',
+            'image' => 'nullable|image|max:1024',
         ]);
 
         if ($request->hasFile('image')) {
