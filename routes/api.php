@@ -25,10 +25,6 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::group(['middleware' => ['auth:sanctum']], function(){
-    Route::post('/students', [StudentController::class, 'store']);
-    Route::put('/students/{id}', [StudentController::class, 'update']);
-    Route::delete('/students/{id}', [StudentController::class, 'destroy']);
-
     Route::put('/user/{id}', [UserController::class, 'update']);
     Route::delete('/user/{id}', [UserController::class, 'destroy']);
     Route::get('/user', [UserController::class, 'index']);
@@ -47,10 +43,6 @@ Route::group(['middleware' => ['auth:sanctum']], function(){
     Route::post('/logout', [AuthController::class, 'logout']);
 
 });
-
-Route::get('/students', [StudentController::class, 'index']);
-Route::get('/students/{id}', [StudentController::class, 'show']);
-Route::get('/students/search/{name}', [StudentController::class, 'search']);
 
 Route::get('/entries', [EntryController::class, 'index']);
 Route::get('/entries/{id}', [EntryController::class, 'show']);
