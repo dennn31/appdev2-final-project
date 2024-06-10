@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
@@ -12,7 +13,8 @@ class UserController extends Controller
      */
     public function index()
     {
-        return User::all();
+        return Auth::user();
+        // return User::all();
     }
 
     /**
@@ -22,11 +24,13 @@ class UserController extends Controller
     {
         $request->validate([
             'name' => 'required',
-            'email' => 'required',
-            'password' => 'required',
+            'email' => 'required|email|unique:users',
+            'password' => 'required|min:6',
         ]);
-          
-        return User::create($request->all());
+
+        $data = $request->all();
+        $data['password'] = bcrypt($data['password']); // Encrypt the password
+        return User::create($data);
     }
 
     /**
@@ -34,7 +38,7 @@ class UserController extends Controller
      */
     public function show(string $id)
     {
-        return User::find($id);
+         return Auth::user();
     }
 
     /**
@@ -42,8 +46,14 @@ class UserController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $user = User::find($id);
-        $user->update($request->all());
+        $user = Auth::user();
+        $user->update($request->only(['name', 'email', 'password']));
+        
+        if ($request->has('password')) {
+            $user->password = bcrypt($request->password);
+            $user->save();
+        }
+
         return $user;
     }
 
@@ -52,13 +62,20 @@ class UserController extends Controller
      */
     public function destroy(string $id)
     {
-        return User::destroy($id);
+        $user = Auth::user();
+        $user->delete();
+
+        return response()->json(['message' => 'User deleted successfully']);
     }
 
     public function search($name)
     {
-        return User::where('name', 'like', '%'.$name.'%')
-                    ->orWhere('email', 'like', '%'.$name.'%')
+        $user = Auth::user();
+        return User::where('id', $user->id)
+                    ->where(function($query) use ($name) {
+                        $query->where('name', 'like', '%'.$name.'%')
+                              ->orWhere('email', 'like', '%'.$name.'%');
+                    })
                     ->get();
     }
 }
