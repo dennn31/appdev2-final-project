@@ -26,19 +26,25 @@ class JournalController extends Controller
             'content' => 'required|string',
             'image' => 'nullable|image|min:2048',
         ]);
-
+    
+        // Check if an Entry already has a Journal
+        $existingJournal = Journal::where('entry_id', $request->entry_id)->first();
+        if ($existingJournal) {
+            return response()->json(['message' => 'This entry already has a journal.'], 400);
+        }
+    
         $imagePath = null;
         if ($request->hasFile('image')) {
             $imagePath = $request->file('image')->store('images', 'public');
         }
-
+    
         $journal = Journal::create([
             'entry_id' => $request->entry_id,
             'mood' => $request->mood,
             'content' => $request->content,
             'image' => $imagePath,
         ]);
-
+    
         return response()->json(['message' => 'Journal entry created successfully', 'journal' => $journal], 201);
     }
 
